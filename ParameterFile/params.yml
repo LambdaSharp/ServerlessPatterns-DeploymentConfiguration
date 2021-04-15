@@ -1,0 +1,9 @@
+
+# set SNS topic name
+TopicDisplayName: !GetConfig
+  - !Sub [ "env-${Target}.json", { Target: !GetEnv "TARGET_ENV" } ]
+  - TopicSettings.DisplayName
+
+# grant access to required KMS keys
+Secrets:
+  - alias/MySecretKey

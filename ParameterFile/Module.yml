@@ -1,4 +1,4 @@
-Module: ServerlessPatterns.DeploymentConfiguration.BasicParameterType
+Module: ServerlessPatterns.DeploymentConfiguration.BasicTypeParameter
 Description: This module shows how to use a basic parameter type
 Items:
 
