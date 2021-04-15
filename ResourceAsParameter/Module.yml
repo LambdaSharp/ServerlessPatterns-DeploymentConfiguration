@@ -3,10 +3,11 @@ Description: This module shows how to declare a resource-as-parameter
 Items:
 
   - Parameter: MyTopic
-    Description: Display Name
+    Description: SNS Topic ARN
     Section: Sample Parameters Settings
-    Label: Display name of SNS topic
+    Label: ARN of an existing SNS Topic (blank to create new SNS Topic)
     Type: AWS::SNS::Topic
     Scope: stack
     Properties:
       DisplayName: MyTopicDisplayName
+
