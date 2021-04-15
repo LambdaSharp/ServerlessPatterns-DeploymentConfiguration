@@ -6,7 +6,11 @@ namespace ServerlessPatterns.DeploymentConfiguration.SecretParameter.MyFunction 
 
     public class FunctionRequest { }
 
-    public class FunctionResponse { }
+    public class FunctionResponse {
+
+        //--- Properties ---
+        public string DisplayName { get; set; }
+    }
 
     public sealed class Function : ALambdaFunction<FunctionRequest, FunctionResponse> {
 
@@ -22,8 +26,9 @@ namespace ServerlessPatterns.DeploymentConfiguration.SecretParameter.MyFunction 
         }
 
         public override async Task<FunctionResponse> ProcessMessageAsync(FunctionRequest request) {
-            LogInfo($"TopicDisplayName: {_topicDisplayName}");
-            return new FunctionResponse();
+            return new FunctionResponse {
+                DisplayName = _topicDisplayName
+            };
         }
     }
 }
