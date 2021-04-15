@@ -1,0 +1,17 @@
+Module: ServerlessPatterns.DeploymentConfiguration.BasicTypeParameter
+Description: This module shows how to use a basic parameter type
+Items:
+
+  - Parameter: TopicDisplayName
+    Description: Display Name
+    Section: Sample Parameters Settings
+    Label: Display name of SNS topic
+    Type: String
+    Scope: stack
+
+  - Resource: MyTopic
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Ref TopicDisplayName
+
+

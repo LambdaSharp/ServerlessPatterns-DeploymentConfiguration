@@ -1,0 +1,25 @@
+Module: ServerlessPatterns.DeploymentConfiguration.SecretParameter
+Description: This module shows how to use a secret parameter type
+Secrets:
+
+  # NOTE: `MySecretKey` must exist as a KMS key alias
+  - alias/MySecretKey
+
+Items:
+
+  - Parameter: TopicDisplayName
+    Description: Display Name
+    Section: Sample Parameters Settings
+    Label: Display name of SNS topic
+    Type: Secret
+    Scope: MyFunction
+
+  - Resource: MyTopic
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Ref TopicDisplayName::Plaintext
+
+  - Function: MyFunction
+    Memory: 1792
+    Timeout: 30
+

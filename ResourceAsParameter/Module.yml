@@ -1,0 +1,13 @@
+Module: ServerlessPatterns.DeploymentConfiguration.ResourceAsParameter
+Description: This module shows how to declare a resource-as-parameter
+Items:
+
+  - Parameter: MyTopic
+    Description: Display Name
+    Section: Sample Parameters Settings
+    Label: Display name of SNS topic
+    Type: AWS::SNS::Topic
+    Scope: stack
+    Properties:
+      DisplayName: MyTopicDisplayName
+
