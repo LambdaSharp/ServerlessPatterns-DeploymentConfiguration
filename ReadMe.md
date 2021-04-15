@@ -45,12 +45,12 @@ _Resource-as-Parameter_ types requires an AWS type name as `Type` value and a `P
 
 ## Secret Parameter
 
-> TODO
+Sensitive information should be passed in using the `Secret` parameter type. These parameter values automatically have the `NoEcho` property enabled to not show their value in the UI, CLI, or API. Secret parameter values must be encoded using a KMS key. Furthermore, the CloudFormation stack must be granted `kms:Decrypt` permission to the KMS key. This is achieved by specifying the KMS key in the module using the `Secrets` declaration or by passing the KMS key in the `Secrets` parameter. The latter is the preferred method.
 
-* Encrypted values
-    * Using `Secrets`
-    * Using `lash encrypt`
-    * Parameter type `Secret`
+Lambda functions automatically decrypt the secret values on startup once and then cache the result in memory. This ensure that the decrypted secret value is not visible in the Lambda configuration in the AWS Console.
+
+For resources that need a password or access token, append the `::Plaintext` suffix to the parameter name to dynamically decrypt the secret value during the CloudFormation stack execution.
+
 ```yaml
 - Parameter: MySecretParameter
   Type: Secret
@@ -61,60 +61,37 @@ _Resource-as-Parameter_ types requires an AWS type name as `Type` value and a `P
 
 ## Parameter File
 
-> TODO
+Parameter value can be specified in a YAML parameter file. Values can either be specified explicitly or they can be looked up from other sources like a JSON configuration file, the _Parameter Store_, or environment variables.
 
-* Parameter file
-    * Types of parameters
-        * key = value
-        * key = list of values -> comma separated values
-    * Lookup Functions
-        * !GetConfig [ json-file-path, json-path-expression ]
-        * !GetEnv environment-variable
-        * !GetParam parameter-store-path -OR- !GetParam [ parameter-store-path ]
-        * !GetParam [ parameter-store-path, encryption-key-id ]
-        * !Ref builtin-variable
-            * Deployment::BucketName
-            * Deployment::Tier
-            * Deployment::TierLowercase
-            * Deployment::TierPrefix
-            * Deployment::TierPrefixLowercase
-        * !Sub format-string
-        * !Sub [ format-string, arguments ]
+```yaml
+# set SNS topic name
+TopicDisplayName: !GetConfig
+  - !Sub [ "env-${Target}.json", { Target: !GetEnv "TARGET_ENV" } ]
+  - TopicSettings.DisplayName
 
-* Configuration sources
-    * Literal values
-    * Parameter store
-        * Re-encrypting secret values
-    * Environment variable
-    * JSON configuration file
+# grant access to required KMS keys
+Secrets:
+  - alias/MySecretKey
+```
 
+### Parameter Functions
 
+The following parameter functions are available in the YAML file.
 
+* `!GetConfig [ json-file-path, json-path-expression ]`
+  * Opens the JSON file at `json-file-path` and read the value a the `json-path-expression`.
+* `!GetEnv environment-variable`
+  * Read the value of an environment variable.
+* `!GetParam parameter-store-path` -OR- `!GetParam [ parameter-store-path ]`
+  * Read a value from the parameter store. If the value is a `SecureString`, it will be decrypted.
+* `!GetParam [ parameter-store-path, encryption-key-id ]`
+  * Read a value from the parameter store. If the value is a `SecureString`, it will be decrypted. Re-encrypt the value using the KMS key identified by `encryption-key-id`.
+* `!Sub format-string` -OR- `!Sub [ format-string, arguments ]`
+  * Build a new parameter value from other values.
+* `!Ref` can be used to resolve the following builtin-variable
+    * `Deployment::BucketName`
+    * `Deployment::Tier`
+    * `Deployment::TierLowercase`
+    * `Deployment::TierPrefix`
+    * `Deployment::TierPrefixLowercase`
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## BitcoinTopic
-
-The _BitcoinTopic_ module creates a Lambda function that publishes the most recent bitcoin price on an SNS topic. The SNS topic is exported from the CloudFormation stack so that other stacks can subscribe to it.
-
-## BitcoinTable
-
-The _BitcoinTable_ module creates a Lambda function that subscribes to the SNS topic from the _BitcoinTopic_ stack and stores the received value in a DynamoDB table. Stored values are automatically forgotten after 15 minutes to minimize the number of stored rows. The DynamoDB table is exported for other stacks to query against.
-
-## BitcoinActivity
-
-The _BitcoinActivity_ module creates a REST API for recording buy/sell activity. It imports the table from the _BitcoinTable_ stack to fetch the most recently recorded price.
-
-A Postman collection is provided to easily interact with the REST API.
